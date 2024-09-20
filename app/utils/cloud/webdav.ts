@@ -14,23 +14,25 @@ export function createWebDavClient(store: SyncStore) {
   return {
     async check() {
       try {
-        const res = await fetch(this.path(folder, proxyUrl, "MKCOL"), {
+        const url = this.path(folder, proxyUrl, "MKCOL");
+        const headers = this.headers();
+        console.log("Request URL:", url);
+        console.log("Request Headers:", headers);
+    
+        const res = await fetch(url, {
           method: "GET",
-          headers: this.headers(),
+          headers: headers,
         });
-        const success = [201, 200, 404, 405, 301, 302, 307, 308].includes(
-          res.status,
-        );
-        console.log(
-          `[WebDav] check ${success ? "success" : "failed"}, ${res.status} ${
-            res.statusText
-          }`,
-        );
+    
+        const resText = await res.text();
+        const success = [201, 200, 404, 405, 301, 302, 307, 308].includes(res.status);
+        console.log(`[WebDav] check ${success ? "success" : "failed"}, ${res.status} ${res.statusText}, response: ${resText}`);
+    
         return success;
       } catch (e) {
         console.error("[WebDav] failed to check", e);
       }
-
+    
       return false;
     },
 
